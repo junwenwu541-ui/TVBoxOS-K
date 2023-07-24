@@ -94,4 +94,6 @@ lint/tmp/
 /adb.exe
 /LTDecodeNew3.exe
 
-.idea/
+# IDEA
+.idea
+.idea/misc.xml
