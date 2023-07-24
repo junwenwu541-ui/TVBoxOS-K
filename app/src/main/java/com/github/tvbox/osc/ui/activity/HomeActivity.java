@@ -6,10 +6,10 @@ import android.animation.AnimatorSet;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -303,7 +303,9 @@ public class HomeActivity extends BaseActivity {
             }
             return;
         }
-        ApiConfig.get().loadConfig(useCacheConfig, new ApiConfig.LoadConfigCallback() {
+        String ANDROID_ID =
+                Settings.System.getString(getContentResolver(), Settings.System.ANDROID_ID);
+        ApiConfig.get().loadConfig(ANDROID_ID, useCacheConfig, new ApiConfig.LoadConfigCallback() {
             TipDialog dialog = null;
 
             @Override

@@ -126,7 +126,7 @@ public class ApiConfig {
         return "".getBytes();
     }
 
-    public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
+    public void loadConfig(String moGhostId, boolean useCache, LoadConfigCallback callback, Activity activity) {
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
         if (apiUrl.isEmpty()) {
             callback.error("-1");
@@ -164,6 +164,7 @@ public class ApiConfig {
         OkGo.<String>get(configUrl)
                 .headers("User-Agent", userAgent)
                 .headers("Accept", requestAccept)
+                .headers("Mo-Ghost-ID", moGhostId)
                 .execute(new AbsCallback<String>() {
                     @Override
                     public void onSuccess(Response<String> response) {
