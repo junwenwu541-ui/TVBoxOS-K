@@ -38,5 +38,9 @@ public class HawkConfig {
     public static final String NOW_DATE = "now_date"; //当前日期
     public static final String REMOTE_TVBOX = "remote_tvbox_host";
     public static final String IJK_CACHE_PLAY = "ijk_cache_play";
+    public static final String FREE_BOX_API = "free_box_api";
+    public static final String FREE_BOX_HTTP_SERVICE_PORT = "free_box_http_service_port";
+    public static final String FREE_BOX_SERVICE_PORT = "free_box_service_port";
+    public static final String FREE_BOX_SERVICE_ADDRESS = "free_box_service_address";
     public static boolean hotVodDelete;
 }

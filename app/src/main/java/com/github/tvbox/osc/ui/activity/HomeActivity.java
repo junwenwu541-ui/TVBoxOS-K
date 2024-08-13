@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import io.knifer.freebox.websocket.WSHelper;
 import me.jessyan.autosize.utils.AutoSizeUtils;
 
 public class HomeActivity extends BaseActivity {
@@ -399,6 +400,15 @@ public class HomeActivity extends BaseActivity {
                 });
             }
         }, this);
+
+        // FreeBox WebSocket初始化
+        if (WSHelper.init()) {
+            mHandler.postDelayed(() -> {
+                if (WSHelper.isOpen()) {
+                    Toast.makeText(mContext, "FreeBox配对成功", Toast.LENGTH_SHORT).show();
+                }
+            }, 3000);
+        }
     }
 
     private void initViewPager(AbsSortXml absXml) {

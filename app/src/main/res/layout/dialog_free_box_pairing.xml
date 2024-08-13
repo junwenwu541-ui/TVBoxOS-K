@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/vs_480"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_dialog_bg_main"
+        android:orientation="vertical"
+        android:padding="@dimen/vs_30">
+
+        <LinearLayout
+            android:layout_width="@dimen/vs_480"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvAddressForFreeBox"
+                android:layout_width="@dimen/vs_480"
+                android:layout_height="wrap_content"
+                android:lineSpacingMultiplier="1.5"
+                android:textColor="@color/color_CC000000"
+                android:textSize="@dimen/ts_24"
+                android:textAlignment="center"
+                tools:text="1111111111111111111111111111111111111111111111111111" />
+
+            <TextView
+                android:layout_width="@dimen/vs_480"
+                android:layout_height="wrap_content"
+                android:lineSpacingMultiplier="1.5"
+                android:text="请先在电脑端开启FreeBox。若无特殊情况，直接点击“搜索可用服务”"
+                android:textColor="@color/color_CC000000"
+                android:textSize="@dimen/ts_24"
+                android:textAlignment="center"
+                tools:text="1111111111111111111111111111111111111111111111111111" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vs_10"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/freeBoxServiceHttpPortInput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/input_dialog_api_input"
+                    android:imeOptions="actionDone"
+                    android:hint="探测端口"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:paddingLeft="@dimen/vs_2"
+                    android:paddingTop="@dimen/vs_10"
+                    android:paddingRight="@dimen/vs_2"
+                    android:paddingBottom="@dimen/vs_10"
+                    android:textAlignment="center"
+                    android:textColor="@color/color_CC000000"
+                    android:textColorHint="@color/color_6C3D3D3D"
+                    android:textSize="@dimen/ts_26" />
+
+                <TextView
+                    android:id="@+id/freeBoxServiceSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="@dimen/vs_5"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_dialog_main"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="@dimen/vs_10"
+                    android:text="搜索可用服务"
+                    android:textColor="@color/color_FFFFFF"
+                    android:textSize="@dimen/ts_22" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/freeBoxConnectLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/freeBoxServiceAddressInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/input_dialog_api_input"
+                    android:imeOptions="actionDone"
+                    android:hint="目标IP"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:paddingLeft="@dimen/vs_2"
+                    android:paddingTop="@dimen/vs_10"
+                    android:paddingRight="@dimen/vs_2"
+                    android:paddingBottom="@dimen/vs_10"
+                    android:textAlignment="center"
+                    android:textColor="@color/color_CC000000"
+                    android:textColorHint="@color/color_6C3D3D3D"
+                    android:textSize="@dimen/ts_26" />
+
+                <EditText
+                    android:id="@+id/freeBoxServicePortInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/input_dialog_api_input"
+                    android:imeOptions="actionDone"
+                    android:hint="目标端口"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:paddingLeft="@dimen/vs_2"
+                    android:paddingTop="@dimen/vs_10"
+                    android:paddingRight="@dimen/vs_2"
+                    android:paddingBottom="@dimen/vs_10"
+                    android:textAlignment="center"
+                    android:textColor="@color/color_CC000000"
+                    android:textColorHint="@color/color_6C3D3D3D"
+                    android:textSize="@dimen/ts_26" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/freeBoxServiceConnect"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="@dimen/vs_5"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_dialog_main"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:padding="@dimen/vs_10"
+                        android:text="连接/重连"
+                        android:textColor="@color/color_FFFFFF"
+                        android:textSize="@dimen/ts_22" />
+
+                    <TextView
+                        android:id="@+id/freeBoxServiceDisConnect"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="@dimen/vs_5"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_dialog_main"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:padding="@dimen/vs_10"
+                        android:text="断开"
+                        android:textColor="@color/color_FFFFFF"
+                        android:textSize="@dimen/ts_22" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

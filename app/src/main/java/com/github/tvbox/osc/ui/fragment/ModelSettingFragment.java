@@ -31,7 +31,6 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.HistoryHelper;
-import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
 import com.lzy.okgo.OkGo;
@@ -40,6 +39,7 @@ import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 
+import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +47,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.knifer.freebox.ui.dialog.PairingDialog;
+import io.knifer.freebox.websocket.WSHelper;
 import okhttp3.HttpUrl;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
@@ -72,6 +74,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
     private TextView tvFastSearchText;
     private TextView tvRecStyleText;
     private TextView tvIjkCachePlay;
+    private TextView freeBoxApi;
+    private TextView llFreeBoxPairing;
 
     public static ModelSettingFragment newInstance() {
         return new ModelSettingFragment().setArguments();
@@ -107,11 +111,13 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvHistoryNum = findViewById(R.id.tvHistoryNum);
         tvSearchView = findViewById(R.id.tvSearchView);
         tvIjkCachePlay = findViewById(R.id.tvIjkCachePlay);
+        freeBoxApi = findViewById(R.id.freeBoxApi);
+        llFreeBoxPairing = findViewById(R.id.llFreeBoxPairing);
+
         tvMediaCodec.setText(Hawk.get(HawkConfig.IJK_CODEC, ""));
         tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "已打开" : "已关闭");
         tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
         tvApi.setText(Hawk.get(HawkConfig.API_URL, ""));
-
         tvDns.setText(OkGoHelper.dnsHttpsList.get(Hawk.get(HawkConfig.DOH_URL, 0)));
         tvHomeRec.setText(getHomeRecName(Hawk.get(HawkConfig.HOME_REC, 0)));
         tvHistoryNum.setText(HistoryHelper.getHistoryNumName(Hawk.get(HawkConfig.HISTORY_NUM, 0)));
@@ -121,6 +127,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
         tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 0)));
         tvIjkCachePlay.setText(Hawk.get(HawkConfig.IJK_CACHE_PLAY, false) ? "开启" : "关闭");
+        freeBoxApi.setText(Hawk.get(HawkConfig.FREE_BOX_API, StringUtils.EMPTY));
+        refreshFreeBoxPairingStatus();
         findViewById(R.id.llDebug).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -661,6 +669,27 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
         findViewById(R.id.llIjkCachePlay).setOnClickListener((view -> onClickIjkCachePlay(view)));
         findViewById(R.id.llClearCache).setOnClickListener((view -> onClickClearCache(view)));
+        findViewById(R.id.llFreeBoxApi).setOnClickListener((view -> {
+            PairingDialog dialog = new PairingDialog(mContext, this::refreshFreeBoxPairingStatus);
+            dialog.show();
+        }));
+    }
+
+    private void refreshFreeBoxPairingStatus() {
+        String template = "FreeBox配对 · %s  %s%s";
+        String msg;
+
+        if (WSHelper.isOpen()) {
+            msg = String.format(
+                    template,
+                    "已连接",
+                    Hawk.get(HawkConfig.FREE_BOX_SERVICE_ADDRESS),
+                    ":" + Hawk.get(HawkConfig.FREE_BOX_SERVICE_PORT).toString()
+            );
+        } else {
+            msg = String.format(template, "未连接", StringUtils.EMPTY, StringUtils.EMPTY);
+        }
+        llFreeBoxPairing.setText(msg);
     }
 
     private void onClickIjkCachePlay(View v) {
