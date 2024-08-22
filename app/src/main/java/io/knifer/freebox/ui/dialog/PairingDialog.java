@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 
 import io.knifer.freebox.constant.FreeBoxConstants;
-import io.knifer.freebox.model.common.PairingInfo;
+import io.knifer.freebox.model.s2c.PairingInfo;
 import io.knifer.freebox.ui.listener.DialogChangeListener;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.websocket.WSHelper;

@@ -1,4 +1,4 @@
-package io.knifer.freebox.model.common;
+package io.knifer.freebox.model.s2c;
 
 public class PairingInfo {
 
