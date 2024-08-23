@@ -1,9 +1,14 @@
 package io.knifer.freebox.websocket.service;
 
+import android.util.Base64;
+
 import com.github.catvod.crawler.Spider;
 import com.github.tvbox.osc.api.ApiConfig;
+import com.github.tvbox.osc.bean.AbsJson;
 import com.github.tvbox.osc.bean.AbsSortJson;
 import com.github.tvbox.osc.bean.AbsSortXml;
+import com.github.tvbox.osc.bean.AbsXml;
+import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.MovieSort;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.util.FileUtils;
@@ -17,15 +22,20 @@ import com.lzy.okgo.OkGo;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
+import org.apache.commons.lang3.StringUtils;
 import org.java_websocket.WebSocket;
+import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.c2s.RegisterInfo;
 import io.knifer.freebox.model.common.Message;
+import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.util.HttpUtil;
 
@@ -111,11 +121,147 @@ public class WSService {
                 }
                 // 到此为止即可（同上）
                 break;
-            default:
-                break;
         }
 
         return sortXml;
+    }
+
+    private String getFixUrl(String content){
+        if (content.startsWith("http://127.0.0.1")) {
+            String path = content.replaceAll("^http.+/file/", FileUtils.getRootPath()+"/");
+            path = path.replaceAll("localhost/", "/");
+            content = FileUtils.readFileToString(path,"UTF-8");
+        }
+
+        return content;
+    }
+
+    public void sendCategoryContent(String topicId, GetCategoryContentDTO dto) {
+        send(Message.oneWay(
+                MessageCodes.GET_CATEGORY_CONTENT_RESULT,
+                getCategoryContent(dto),
+                topicId
+        ));
+    }
+
+    private AbsXml getCategoryContent(GetCategoryContentDTO dto) {
+        SourceBean source = dto.getSource();
+        MovieSort.SortData sortData = dto.getSortData();
+        Integer page = dto.getPage();
+        int type = source.getType();
+        String api = source.getApi();
+        String key = source.getKey();
+        String jsonData;
+        AbsXml data = null;
+
+        switch (type) {
+            case 3:
+                Spider spider = ApiConfig.get().getCSP(source);
+                jsonData = spider.categoryContent(
+                        sortData.id, String.valueOf(page), true, sortData.filterSelect
+                );
+
+                data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                absXml(data, key);
+                break;
+            case 0:
+            case 1:
+                jsonData = HttpUtil.getStringBody(
+                        OkGo.<String>get(api)
+                                .tag(api)
+                                .params("ac", type == 0 ? "videolist" : "detail")
+                                .params("t", sortData.id)
+                                .params("pg", page)
+                                .params(sortData.filterSelect)
+                                .params(
+                                        "f",
+                                        (
+                                                sortData.filterSelect == null ||
+                                                sortData.filterSelect.size() <= 0
+                                        ) ?
+                                        "" : new JSONObject(sortData.filterSelect).toString()
+                                )
+                );
+                if (jsonData == null) {
+                    break;
+                }
+                if (type == 0) {
+                    data = xml(jsonData, key);
+                } else {
+                    data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                    absXml(data, key);
+                }
+                break;
+            case 4:
+                String ext = StringUtils.EMPTY;
+                String selectExt;
+
+                if (sortData.filterSelect != null && sortData.filterSelect.size() > 0) {
+                    try {
+                        selectExt = new JSONObject(sortData.filterSelect).toString();
+                        ext = Base64.encodeToString(
+                                selectExt.getBytes("UTF-8"),
+                                Base64.DEFAULT |  Base64.NO_WRAP
+                        );
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    ext = Base64.encodeToString("{}".getBytes(), Base64.DEFAULT |  Base64.NO_WRAP);
+                }
+                jsonData = HttpUtil.getStringBody(
+                        OkGo.<String>get(api)
+                                .tag(api)
+                                .params("ac", "detail")
+                                .params("filter", "true")
+                                .params("t", sortData.id)
+                                .params("pg", page)
+                                .params("ext", ext)
+                );
+                if (jsonData == null) {
+                    break;
+                }
+                data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                absXml(data, key);
+                break;
+        }
+
+        return data;
+    }
+
+    private AbsXml xml(String xml, String sourceKey) {
+        XStream xstream = new XStream(new DomDriver());
+        xstream.autodetectAnnotations(true);
+        xstream.processAnnotations(AbsXml.class);
+        xstream.ignoreUnknownElements();
+        if (xml.contains("<year></year>")) {
+            xml = xml.replace("<year></year>", "<year>0</year>");
+        }
+        if (xml.contains("<state></state>")) {
+            xml = xml.replace("<state></state>", "<state>0</state>");
+        }
+        AbsXml data = (AbsXml) xstream.fromXML(xml);
+        absXml(data, sourceKey);
+
+        return data;
+    }
+
+    private AbsSortXml sortXml(String xml) {
+        try {
+            XStream xstream = new XStream(new DomDriver());
+            xstream.autodetectAnnotations(true);
+            xstream.processAnnotations(AbsSortXml.class);
+            xstream.ignoreUnknownElements();
+            AbsSortXml data = (AbsSortXml) xstream.fromXML(xml);
+            for (MovieSort.SortData sort : data.classes.sortList) {
+                if (sort.filters == null) {
+                    sort.filters = new ArrayList<>();
+                }
+            }
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private AbsSortXml sortJson(String json) {
@@ -174,32 +320,34 @@ public class WSService {
         return filter;
     }
 
-    private AbsSortXml sortXml(String xml) {
-        try {
-            XStream xstream = new XStream(new DomDriver());
-            xstream.autodetectAnnotations(true);
-            xstream.processAnnotations(AbsSortXml.class);
-            xstream.ignoreUnknownElements();
-            AbsSortXml data = (AbsSortXml) xstream.fromXML(xml);
-            for (MovieSort.SortData sort : data.classes.sortList) {
-                if (sort.filters == null) {
-                    sort.filters = new ArrayList<>();
+    private void absXml(AbsXml data, String sourceKey) {
+        if (data.movie != null && data.movie.videoList != null) {
+            for (Movie.Video video : data.movie.videoList) {
+                if (video.urlBean != null && video.urlBean.infoList != null) {
+                    for (Movie.Video.UrlBean.UrlInfo urlInfo : video.urlBean.infoList) {
+                        String[] str = null;
+                        if (urlInfo.urls.contains("#")) {
+                            str = urlInfo.urls.split("#");
+                        } else {
+                            str = new String[]{urlInfo.urls};
+                        }
+                        List<Movie.Video.UrlBean.UrlInfo.InfoBean> infoBeanList = new ArrayList<>();
+                        for (String s : str) {
+                            String[] ss = s.split("\\$");
+                            if (ss.length > 0) {
+                                if (ss.length >= 2) {
+                                    infoBeanList.add(new Movie.Video.UrlBean.UrlInfo.InfoBean(ss[0], ss[1]));
+                                } else {
+                                    infoBeanList.add(new Movie.Video.UrlBean.UrlInfo.InfoBean(String.valueOf(infoBeanList.size() + 1), ss[0]));
+                                }
+                            }
+                        }
+                        urlInfo.beanList = infoBeanList;
+                    }
                 }
+                video.sourceKey = sourceKey;
             }
-            return data;
-        } catch (Exception e) {
-            return null;
         }
-    }
-
-    private String getFixUrl(String content){
-        if (content.startsWith("http://127.0.0.1")) {
-            String path = content.replaceAll("^http.+/file/", FileUtils.getRootPath()+"/");
-            path = path.replaceAll("localhost/", "/");
-            content = FileUtils.readFileToString(path,"UTF-8");
-        }
-
-        return content;
     }
 
     private void send(Object obj) {
