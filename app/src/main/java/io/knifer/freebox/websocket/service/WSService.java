@@ -12,6 +12,7 @@ import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.MovieSort;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.util.FileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,6 +28,7 @@ import org.java_websocket.WebSocket;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,6 +38,7 @@ import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.c2s.RegisterInfo;
 import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
+import io.knifer.freebox.model.s2c.GetDetailContentDTO;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.util.HttpUtil;
 
@@ -348,6 +351,73 @@ public class WSService {
                 video.sourceKey = sourceKey;
             }
         }
+    }
+
+    public void sendDetailContent(String topicId, GetDetailContentDTO dto) {
+        send(Message.oneWay(
+                MessageCodes.GET_DETAIL_CONTENT_RESULT,
+                getDetailContent(dto),
+                topicId
+        ));
+    }
+
+    private AbsXml getDetailContent(GetDetailContentDTO dto) {
+        String sourceKey = dto.getSourceKey();
+        String urlid = dto.getVideoId();
+        String pushUrl;
+        String id;
+        SourceBean source;
+        int type;
+        Spider sp;
+        String jsonData;
+        AbsXml data = null;
+
+        if (urlid.startsWith("push://") && ApiConfig.get().getSource("push_agent") != null) {
+            pushUrl = urlid.substring(7);
+            if (pushUrl.startsWith("b64:")) {
+                try {
+                    pushUrl = new String(Base64.decode(pushUrl.substring(4), Base64.DEFAULT | Base64.URL_SAFE | Base64.NO_WRAP), "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                pushUrl = URLDecoder.decode(pushUrl);
+            }
+            sourceKey = "push_agent";
+            urlid = pushUrl;
+        }
+        id = urlid;
+        source = ApiConfig.get().getSource(sourceKey);
+        type = source.getType();
+        switch (type) {
+            case 3:
+                sp = ApiConfig.get().getCSP(source);
+                jsonData = sp.detailContent(ImmutableList.of(id));
+                data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                absXml(data, sourceKey);
+                break;
+            case 0:
+            case 1:
+            case 4:
+                jsonData = HttpUtil.getStringBody(
+                        OkGo.<String>get(source.getApi())
+                                .tag("detail")
+                                .params("ac", type == 0 ? "videolist" : "detail")
+                                .params("ids", id)
+                );
+                if (jsonData == null) {
+                    break;
+                }
+                if (type == 0) {
+                    data = xml(jsonData, sourceKey);
+                } else {
+                    data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                    absXml(data, sourceKey);
+                }
+                break;
+        }
+
+        return data;
     }
 
     private void send(Object obj) {

@@ -15,6 +15,7 @@ import io.knifer.freebox.util.CastUtil;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.websocket.handler.WebSocketMessageHandler;
 import io.knifer.freebox.websocket.handler.impl.GetCategoryContentHandler;
+import io.knifer.freebox.websocket.handler.impl.GetDetailContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetHomeContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetSourceBeanListHandler;
 import io.knifer.freebox.websocket.service.WSService;
@@ -30,7 +31,8 @@ public class WSClient extends WebSocketClient {
         handlers = ImmutableList.of(
                 new GetSourceBeanListHandler(service),
                 new GetHomeContentHandler(service),
-                new GetCategoryContentHandler(service)
+                new GetCategoryContentHandler(service),
+                new GetDetailContentHandler(service)
         );
     }
 
