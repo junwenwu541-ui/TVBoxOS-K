@@ -7,6 +7,7 @@ import java.util.Objects;
 
 /**
  * 获取指定分类信息
+ * @author Knifer
  */
 public class GetCategoryContentDTO {
 

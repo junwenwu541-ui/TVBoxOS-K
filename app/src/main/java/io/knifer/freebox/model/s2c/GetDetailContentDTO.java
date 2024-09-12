@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * 获取详情信息参数
- * @author knifer
+ * @author Knifer
  */
 public class GetDetailContentDTO {
 

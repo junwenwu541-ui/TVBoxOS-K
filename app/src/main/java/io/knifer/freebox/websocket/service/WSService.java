@@ -2,6 +2,8 @@ package io.knifer.freebox.websocket.service;
 
 import android.util.Base64;
 
+import androidx.annotation.Nullable;
+
 import com.github.catvod.crawler.Spider;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.bean.AbsJson;
@@ -11,6 +13,7 @@ import com.github.tvbox.osc.bean.AbsXml;
 import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.MovieSort;
 import com.github.tvbox.osc.bean.SourceBean;
+import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.FileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
@@ -25,6 +28,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import org.apache.commons.lang3.StringUtils;
 import org.java_websocket.WebSocket;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -39,6 +43,7 @@ import io.knifer.freebox.model.c2s.RegisterInfo;
 import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
+import io.knifer.freebox.model.s2c.GetPlayerContentDTO;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.util.HttpUtil;
 
@@ -418,6 +423,105 @@ public class WSService {
         }
 
         return data;
+    }
+
+    public void sendPlayerContent(String topicId, GetPlayerContentDTO dto) {
+        send(Message.oneWay(
+                MessageCodes.GET_PLAYER_CONTENT_RESULT,
+                getPlayerContent(dto),
+                topicId
+        ));
+    }
+
+    @Nullable
+    private JSONObject getPlayerContent(GetPlayerContentDTO dto) {
+        SourceBean sourceBean = ApiConfig.get().getSource(dto.getSourceKey());
+        int type = sourceBean.getType();
+        String id = dto.getId();
+        String playFlag = dto.getPlayFlag();
+        String progressKey = dto.getProcessKey();
+        Spider sp;
+        String json;
+        JSONObject result;
+
+        switch (type) {
+            case 3:
+                if (StringUtils.isBlank(id)) {
+                    return null;
+                }
+                sp = ApiConfig.get().getCSP(sourceBean);
+                json = sp.playerContent(playFlag, id, ApiConfig.get().getVipParseFlags());
+                try {
+                    result = new JSONObject(json);
+                    result.put("key", id);
+                    result.put("proKey", progressKey);
+                    if (!result.has("flag")) {
+                        result.put("flag", playFlag);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+
+                    return null;
+                }
+                break;
+            case 0:
+            case 1:
+                String playUrl;
+
+                result = new JSONObject();
+                try {
+                    result.put("key", id);
+                    playUrl = sourceBean.getPlayerUrl().trim();
+                    if (DefaultConfig.isVideoFormat(id) && playUrl.isEmpty()) {
+                        result.put("parse", 0);
+                        result.put("url", id);
+                    } else {
+                        result.put("parse", 1);
+                        result.put("url", id);
+                    }
+                    result.put("proKey", progressKey);
+                    result.put("playUrl", playUrl);
+                    result.put("flag", playFlag);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+
+                    return null;
+                }
+                break;
+            case 4:
+                String extend = getFixUrl(sourceBean.getExt());
+
+                if(URLEncoder.encode(extend).length()>1000) {
+                    extend = "";
+                }
+                json = HttpUtil.getStringBody(
+                        OkGo.<String>get(sourceBean.getApi())
+                                .params("play", id)
+                                .params("flag" ,playFlag)
+                                .params("extend", extend)
+                                .tag("play")
+                );
+                if (json == null) {
+                    return null;
+                }
+                try {
+                    result = new JSONObject(json);
+                    result.put("key", id);
+                    result.put("proKey", progressKey);
+                    if (!result.has("flag")) {
+                        result.put("flag", playFlag);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+
+                    return null;
+                }
+                break;
+            default:
+                result = null;
+        }
+
+        return result;
     }
 
     private void send(Object obj) {
