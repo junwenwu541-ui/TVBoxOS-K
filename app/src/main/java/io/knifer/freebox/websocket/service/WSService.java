@@ -13,6 +13,8 @@ import com.github.tvbox.osc.bean.AbsXml;
 import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.MovieSort;
 import com.github.tvbox.osc.bean.SourceBean;
+import com.github.tvbox.osc.bean.VodInfo;
+import com.github.tvbox.osc.cache.RoomDataManger;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.FileUtils;
 import com.google.common.collect.ImmutableList;
@@ -43,6 +45,7 @@ import io.knifer.freebox.model.c2s.RegisterInfo;
 import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
+import io.knifer.freebox.model.s2c.GetPlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetPlayerContentDTO;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.util.HttpUtil;
@@ -522,6 +525,24 @@ public class WSService {
         }
 
         return result;
+    }
+
+    public void sendPlayHistory(String topicId, GetPlayHistoryDTO dto) {
+        send(Message.oneWay(
+                MessageCodes.GET_PLAY_HISTORY_RESULT,
+                getPlayHistory(dto),
+                topicId
+        ));
+    }
+
+    private List<VodInfo> getPlayHistory(GetPlayHistoryDTO dto) {
+        Integer limit = dto.getLimit();
+
+        if (limit == null || limit < 1) {
+            limit = 100;
+        }
+
+        return RoomDataManger.getAllVodRecord(Math.min(limit, 100));
     }
 
     private void send(Object obj) {
