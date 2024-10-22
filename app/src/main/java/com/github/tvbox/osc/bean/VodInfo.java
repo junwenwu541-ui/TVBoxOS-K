@@ -1,11 +1,8 @@
 package com.github.tvbox.osc.bean;
 
-import com.github.tvbox.osc.api.ApiConfig;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +49,14 @@ public class VodInfo implements Serializable {
     public String playerCfg = "";
     public boolean reverseSort = false;
 
+    /*
+     * ↓ by knifer
+     * */
+    /**
+     * 播放进度
+     */
+    private Long progress;
+
     public void setVideo(Movie.Video video) {
         last = video.last;
         id = video.id;
@@ -94,6 +99,14 @@ public class VodInfo implements Serializable {
         for (String flag : flags) {
             Collections.reverse(seriesMap.get(flag));
         }
+    }
+
+    public void setProgress(Long progress) {
+        this.progress = progress;
+    }
+
+    public Long getProgress() {
+        return this.progress;
     }
 
     public static class VodSeriesFlag implements Serializable {

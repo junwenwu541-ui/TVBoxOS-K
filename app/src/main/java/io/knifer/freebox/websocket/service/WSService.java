@@ -14,9 +14,11 @@ import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.MovieSort;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.bean.VodInfo;
+import com.github.tvbox.osc.cache.CacheManager;
 import com.github.tvbox.osc.cache.RoomDataManger;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.FileUtils;
+import com.github.tvbox.osc.util.MD5;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -537,12 +539,29 @@ public class WSService {
 
     private List<VodInfo> getPlayHistory(GetPlayHistoryDTO dto) {
         Integer limit = dto.getLimit();
+        List<VodInfo> resultList;
+        String progressKey;
+        Object progressObj;
 
         if (limit == null || limit < 1) {
             limit = 100;
         }
+        resultList = RoomDataManger.getAllVodRecord(Math.min(limit, 100));
+        for (VodInfo vodInfo : resultList) {
+            // 在缓存中查询播放进度
+            progressKey = vodInfo.sourceKey +
+                    vodInfo.id +
+                    vodInfo.playFlag +
+                    vodInfo.playIndex +
+                    vodInfo.playNote;
+            progressObj = CacheManager.getCache(MD5.string2MD5(progressKey));
+            if (progressObj == null) {
+                continue;
+            }
+            vodInfo.setProgress(((long) progressObj));
+        }
 
-        return RoomDataManger.getAllVodRecord(Math.min(limit, 100));
+        return resultList;
     }
 
     private void send(Object obj) {
