@@ -6,10 +6,10 @@ import com.google.gson.reflect.TypeToken;
 import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.util.GsonUtil;
-import io.knifer.freebox.websocket.handler.TopicSendBackHandler;
+import io.knifer.freebox.websocket.handler.ServiceMessageHandler;
 import io.knifer.freebox.websocket.service.WSService;
 
-public class GetHomeContentHandler extends TopicSendBackHandler<SourceBean> {
+public class GetHomeContentHandler extends ServiceMessageHandler<SourceBean> {
 
     public GetHomeContentHandler(WSService service) {
         super(service);

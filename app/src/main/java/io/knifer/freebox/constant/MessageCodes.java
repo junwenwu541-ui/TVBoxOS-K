@@ -63,4 +63,8 @@ public final class MessageCodes {
      * 获取观看历史结果
      */
     public static final int GET_PLAY_HISTORY_RESULT = 212;
+    /**
+     * 保存观看历史
+     */
+    public static final int SAVE_PLAY_HISTORY = 213;
 }

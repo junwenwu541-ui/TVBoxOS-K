@@ -5,13 +5,13 @@ import com.google.gson.reflect.TypeToken;
 import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.util.GsonUtil;
-import io.knifer.freebox.websocket.handler.TopicSendBackHandler;
+import io.knifer.freebox.websocket.handler.ServiceMessageHandler;
 import io.knifer.freebox.websocket.service.WSService;
 
 /**
  * 获取源列表消息处理器
  */
-public class GetSourceBeanListHandler extends TopicSendBackHandler<Void> {
+public class GetSourceBeanListHandler extends ServiceMessageHandler<Void> {
 
     public GetSourceBeanListHandler(WSService service) {
         super(service);

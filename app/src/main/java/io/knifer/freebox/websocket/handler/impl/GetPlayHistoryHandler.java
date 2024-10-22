@@ -6,10 +6,10 @@ import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.model.s2c.GetPlayHistoryDTO;
 import io.knifer.freebox.util.GsonUtil;
-import io.knifer.freebox.websocket.handler.TopicSendBackHandler;
+import io.knifer.freebox.websocket.handler.ServiceMessageHandler;
 import io.knifer.freebox.websocket.service.WSService;
 
-public class GetPlayHistoryHandler extends TopicSendBackHandler<GetPlayHistoryDTO> {
+public class GetPlayHistoryHandler extends ServiceMessageHandler<GetPlayHistoryDTO> {
     public GetPlayHistoryHandler(WSService service) {
         super(service);
     }

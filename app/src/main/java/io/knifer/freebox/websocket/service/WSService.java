@@ -49,6 +49,7 @@ import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
 import io.knifer.freebox.model.s2c.GetPlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetPlayerContentDTO;
+import io.knifer.freebox.model.s2c.SavePlayHistoryDTO;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.util.HttpUtil;
 
@@ -566,5 +567,27 @@ public class WSService {
 
     private void send(Object obj) {
         connection.send(GsonUtil.toJson(obj));
+    }
+
+    public void savePlayHistory(SavePlayHistoryDTO dto) {
+        VodInfo vodInfo = dto.getVodInfo();
+        Long progress;
+        String progressKey;
+
+        if (vodInfo == null || StringUtils.isBlank(vodInfo.sourceKey)) {
+            return;
+        }
+        // 保存历史记录：影片信息
+        RoomDataManger.insertVodRecord(vodInfo.sourceKey, vodInfo);
+        // 保存历史记录：播放进度
+        progressKey = vodInfo.sourceKey +
+                vodInfo.id +
+                vodInfo.playFlag +
+                vodInfo.playIndex +
+                vodInfo.playNote;
+        progress = vodInfo.getProgress();
+        if (progress != null && progress > 0) {
+            CacheManager.save(MD5.string2MD5(progressKey), progress);
+        }
     }
 }

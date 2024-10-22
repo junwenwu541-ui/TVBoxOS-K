@@ -6,10 +6,10 @@ import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
 import io.knifer.freebox.util.GsonUtil;
-import io.knifer.freebox.websocket.handler.TopicSendBackHandler;
+import io.knifer.freebox.websocket.handler.ServiceMessageHandler;
 import io.knifer.freebox.websocket.service.WSService;
 
-public class GetDetailContentHandler extends TopicSendBackHandler<GetDetailContentDTO> {
+public class GetDetailContentHandler extends ServiceMessageHandler<GetDetailContentDTO> {
     public GetDetailContentHandler(WSService service) {
         super(service);
     }

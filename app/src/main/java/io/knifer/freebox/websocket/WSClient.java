@@ -20,6 +20,7 @@ import io.knifer.freebox.websocket.handler.impl.GetHomeContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetPlayHistoryHandler;
 import io.knifer.freebox.websocket.handler.impl.GetPlayerContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetSourceBeanListHandler;
+import io.knifer.freebox.websocket.handler.impl.SavePlayHistoryHandler;
 import io.knifer.freebox.websocket.service.WSService;
 
 public class WSClient extends WebSocketClient {
@@ -36,7 +37,8 @@ public class WSClient extends WebSocketClient {
                 new GetCategoryContentHandler(service),
                 new GetDetailContentHandler(service),
                 new GetPlayerContentHandler(service),
-                new GetPlayHistoryHandler(service)
+                new GetPlayHistoryHandler(service),
+                new SavePlayHistoryHandler(service)
         );
     }
 
