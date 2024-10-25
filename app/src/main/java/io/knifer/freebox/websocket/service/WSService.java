@@ -49,6 +49,7 @@ import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
 import io.knifer.freebox.model.s2c.GetPlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetPlayerContentDTO;
+import io.knifer.freebox.model.s2c.GetSearchContentDTO;
 import io.knifer.freebox.model.s2c.SavePlayHistoryDTO;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.util.HttpUtil;
@@ -174,7 +175,6 @@ public class WSService {
                 jsonData = spider.categoryContent(
                         sortData.id, String.valueOf(page), true, sortData.filterSelect
                 );
-
                 data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
                 absXml(data, key);
                 break;
@@ -563,6 +563,66 @@ public class WSService {
         }
 
         return resultList;
+    }
+
+    public void searchContent(String topicId, GetSearchContentDTO dto) {
+        AbsXml result = null;
+
+        try {
+            result = getSearchContent(dto);
+        } catch (Exception ignored) {}
+        send(Message.oneWay(
+                MessageCodes.GET_SEARCH_CONTENT_RESULT,
+                result,
+                topicId
+        ));
+    }
+
+    private AbsXml getSearchContent(GetSearchContentDTO dto) {
+        String sourceKey = dto.getSourceKey();
+        SourceBean source = ApiConfig.get().getSource(sourceKey);
+        String keyword = dto.getKeyword();
+        int type;
+        Spider spider;
+        String jsonData;
+        AbsXml data = null;
+
+        if (source == null) {
+            return null;
+        }
+        type = source.getType();
+        switch (type) {
+            case 3:
+                spider = ApiConfig.get().getCSP(source);
+                jsonData = spider.searchContent(keyword, false);
+                data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                absXml(data, sourceKey);
+                break;
+            case 0:
+            case 1:
+                jsonData = HttpUtil.getStringBody(
+                        OkGo.<String>get(source.getApi())
+                                .params("wd", keyword)
+                                .params(type == 1 ? "ac" : null, type == 1 ? "detail" : null)
+                                .tag("search")
+                );
+                data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                absXml(data, sourceKey);
+                break;
+            case 4:
+                jsonData = HttpUtil.getStringBody(
+                        OkGo.<String>get(source.getApi())
+                                .params("wd", keyword)
+                                .params("ac" ,"detail")
+                                .params("quick" ,"false")
+                                .tag("search")
+                );
+                data = GsonUtil.fromJson(jsonData, AbsJson.class).toAbsXml();
+                absXml(data, sourceKey);
+                break;
+        }
+
+        return data;
     }
 
     private void send(Object obj) {
