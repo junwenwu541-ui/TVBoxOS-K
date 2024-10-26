@@ -14,6 +14,7 @@ import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.util.CastUtil;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.websocket.handler.WebSocketMessageHandler;
+import io.knifer.freebox.websocket.handler.impl.DeletePlayHistoryHandler;
 import io.knifer.freebox.websocket.handler.impl.GetCategoryContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetDetailContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetHomeContentHandler;
@@ -40,7 +41,8 @@ public class WSClient extends WebSocketClient {
                 new GetPlayerContentHandler(service),
                 new GetPlayHistoryHandler(service),
                 new GetSearchContentHandler(service),
-                new SavePlayHistoryHandler(service)
+                new SavePlayHistoryHandler(service),
+                new DeletePlayHistoryHandler(service)
         );
     }
 

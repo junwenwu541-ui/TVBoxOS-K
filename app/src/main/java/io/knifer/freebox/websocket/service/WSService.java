@@ -45,6 +45,7 @@ import java.util.List;
 import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.c2s.RegisterInfo;
 import io.knifer.freebox.model.common.Message;
+import io.knifer.freebox.model.s2c.DeletePlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
 import io.knifer.freebox.model.s2c.GetPlayHistoryDTO;
@@ -625,6 +626,25 @@ public class WSService {
         return data;
     }
 
+    public void deletePlayHistory(String topicId, DeletePlayHistoryDTO dto) {
+        VodInfo vodInfo;
+
+        if (dto == null) {
+            return;
+        }
+        vodInfo = dto.getVodInfo();
+        if (vodInfo == null || vodInfo.id == null) {
+            return;
+        }
+        RoomDataManger.deleteVodRecord(vodInfo.sourceKey, vodInfo);
+        CacheManager.delete(getProgressKey(vodInfo), 0);
+        send(Message.oneWay(
+                MessageCodes.DELETE_PLAY_HISTORY_RESULT,
+                null,
+                topicId
+        ));
+    }
+
     private void send(Object obj) {
         connection.send(GsonUtil.toJson(obj));
     }
@@ -640,14 +660,18 @@ public class WSService {
         // 保存历史记录：影片信息
         RoomDataManger.insertVodRecord(vodInfo.sourceKey, vodInfo);
         // 保存历史记录：播放进度
-        progressKey = vodInfo.sourceKey +
-                vodInfo.id +
-                vodInfo.playFlag +
-                vodInfo.playIndex +
-                vodInfo.playNote;
+        progressKey = getProgressKey(vodInfo);
         progress = vodInfo.getProgress();
         if (progress != null && progress > 0) {
             CacheManager.save(MD5.string2MD5(progressKey), progress);
         }
+    }
+
+    private String getProgressKey(VodInfo vodInfo) {
+        return vodInfo.sourceKey +
+                vodInfo.id +
+                vodInfo.playFlag +
+                vodInfo.playIndex +
+                vodInfo.playNote;
     }
 }
