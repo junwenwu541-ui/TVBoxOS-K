@@ -49,6 +49,7 @@ import io.knifer.freebox.model.s2c.DeleteMovieCollectionDTO;
 import io.knifer.freebox.model.s2c.DeletePlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
+import io.knifer.freebox.model.s2c.GetMovieCollectedStatusDTO;
 import io.knifer.freebox.model.s2c.GetOnePlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetPlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetPlayerContentDTO;
@@ -703,6 +704,20 @@ public class WSService {
         send(Message.oneWay(
                 MessageCodes.DELETE_MOVIE_COLLECTION_RESULT,
                 null,
+                topicId
+        ));
+    }
+
+    public void getMovieCollectedStatus(String topicId, GetMovieCollectedStatusDTO dto) {
+        String sourceKey = dto.getSourceKey();
+        String vodId = dto.getVodId();
+
+        if (StringUtils.isBlank(sourceKey) || StringUtils.isBlank(vodId)) {
+            return;
+        }
+        send(Message.oneWay(
+                MessageCodes.GET_MOVIE_COLLECTION_RESULT,
+                RoomDataManger.isVodCollect(sourceKey, vodId),
                 topicId
         ));
     }
