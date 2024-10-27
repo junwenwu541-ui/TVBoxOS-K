@@ -45,12 +45,15 @@ import java.util.List;
 import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.c2s.RegisterInfo;
 import io.knifer.freebox.model.common.Message;
+import io.knifer.freebox.model.s2c.DeleteMovieCollectionDTO;
 import io.knifer.freebox.model.s2c.DeletePlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetCategoryContentDTO;
 import io.knifer.freebox.model.s2c.GetDetailContentDTO;
+import io.knifer.freebox.model.s2c.GetOnePlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetPlayHistoryDTO;
 import io.knifer.freebox.model.s2c.GetPlayerContentDTO;
 import io.knifer.freebox.model.s2c.GetSearchContentDTO;
+import io.knifer.freebox.model.s2c.SaveMovieCollectionDTO;
 import io.knifer.freebox.model.s2c.SavePlayHistoryDTO;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.util.HttpUtil;
@@ -539,10 +542,38 @@ public class WSService {
         ));
     }
 
+    public void sendOnePlayHistory(String topicId, GetOnePlayHistoryDTO dto) {
+        send(Message.oneWay(
+                MessageCodes.GET_ONE_PLAY_HISTORY_RESULT,
+                getOnePlayHistory(dto),
+                topicId
+        ));
+    }
+
+    private VodInfo getOnePlayHistory(GetOnePlayHistoryDTO dto) {
+        String sourceKey = dto.getSourceKey();
+        String vodId = dto.getVodId();
+        VodInfo vodInfo;
+        Object progressObj;
+
+        if (StringUtils.isBlank(sourceKey) || StringUtils.isBlank(vodId)) {
+            return null;
+        }
+        vodInfo = RoomDataManger.getVodInfo(sourceKey, vodId);
+        if (vodInfo == null) {
+            return null;
+        }
+        progressObj = CacheManager.getCache(getProgressKey(vodInfo));
+        if (progressObj != null) {
+            vodInfo.setProgress((long) progressObj);
+        }
+
+        return vodInfo;
+    }
+
     private List<VodInfo> getPlayHistory(GetPlayHistoryDTO dto) {
         Integer limit = dto.getLimit();
         List<VodInfo> resultList;
-        String progressKey;
         Object progressObj;
 
         if (limit == null || limit < 1) {
@@ -551,12 +582,7 @@ public class WSService {
         resultList = RoomDataManger.getAllVodRecord(Math.min(limit, 100));
         for (VodInfo vodInfo : resultList) {
             // 在缓存中查询播放进度
-            progressKey = vodInfo.sourceKey +
-                    vodInfo.id +
-                    vodInfo.playFlag +
-                    vodInfo.playIndex +
-                    vodInfo.playNote;
-            progressObj = CacheManager.getCache(MD5.string2MD5(progressKey));
+            progressObj = CacheManager.getCache(getProgressKey(vodInfo));
             if (progressObj == null) {
                 continue;
             }
@@ -633,13 +659,49 @@ public class WSService {
             return;
         }
         vodInfo = dto.getVodInfo();
-        if (vodInfo == null || vodInfo.id == null) {
+        if (isVodInfoInvalid(vodInfo)) {
             return;
         }
         RoomDataManger.deleteVodRecord(vodInfo.sourceKey, vodInfo);
         CacheManager.delete(getProgressKey(vodInfo), 0);
         send(Message.oneWay(
                 MessageCodes.DELETE_PLAY_HISTORY_RESULT,
+                null,
+                topicId
+        ));
+    }
+
+    public void sendMovieCollection(String topicId) {
+        send(Message.oneWay(
+                MessageCodes.GET_MOVIE_COLLECTION_RESULT,
+                RoomDataManger.getAllVodCollect(),
+                topicId
+        ));
+    }
+
+    public void saveMovieCollection(String topicId, SaveMovieCollectionDTO dto) {
+        VodInfo vodInfo = dto.getVodInfo();
+
+        if (isVodInfoInvalid(vodInfo)) {
+            return;
+        }
+        RoomDataManger.insertVodCollect(vodInfo.sourceKey, vodInfo);
+        send(Message.oneWay(
+                MessageCodes.SAVE_MOVIE_COLLECTION_RESULT,
+                null,
+                topicId
+        ));
+    }
+
+    public void deleteMovieCollection(String topicId, DeleteMovieCollectionDTO dto) {
+        VodInfo vodInfo = dto.getVodInfo();
+
+        if (isVodInfoInvalid(vodInfo)) {
+            return;
+        }
+        RoomDataManger.deleteVodCollect(vodInfo.sourceKey, vodInfo);
+        send(Message.oneWay(
+                MessageCodes.DELETE_MOVIE_COLLECTION_RESULT,
                 null,
                 topicId
         ));
@@ -654,7 +716,7 @@ public class WSService {
         Long progress;
         String progressKey;
 
-        if (vodInfo == null || StringUtils.isBlank(vodInfo.sourceKey)) {
+        if (isVodInfoInvalid(vodInfo)) {
             return;
         }
         // 保存历史记录：影片信息
@@ -663,15 +725,21 @@ public class WSService {
         progressKey = getProgressKey(vodInfo);
         progress = vodInfo.getProgress();
         if (progress != null && progress > 0) {
-            CacheManager.save(MD5.string2MD5(progressKey), progress);
+            CacheManager.save(progressKey, progress);
         }
     }
 
+    private boolean isVodInfoInvalid(@Nullable VodInfo vodInfo) {
+        return vodInfo == null || StringUtils.isBlank(vodInfo.sourceKey);
+    }
+
     private String getProgressKey(VodInfo vodInfo) {
-        return vodInfo.sourceKey +
+        return MD5.string2MD5(
+                vodInfo.sourceKey +
                 vodInfo.id +
                 vodInfo.playFlag +
                 vodInfo.playIndex +
-                vodInfo.playNote;
+                vodInfo.playNote
+        );
     }
 }

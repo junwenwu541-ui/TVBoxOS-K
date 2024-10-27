@@ -14,14 +14,18 @@ import io.knifer.freebox.model.common.Message;
 import io.knifer.freebox.util.CastUtil;
 import io.knifer.freebox.util.GsonUtil;
 import io.knifer.freebox.websocket.handler.WebSocketMessageHandler;
+import io.knifer.freebox.websocket.handler.impl.DeleteMovieCollectionHandler;
 import io.knifer.freebox.websocket.handler.impl.DeletePlayHistoryHandler;
 import io.knifer.freebox.websocket.handler.impl.GetCategoryContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetDetailContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetHomeContentHandler;
+import io.knifer.freebox.websocket.handler.impl.GetMovieCollectionHandler;
+import io.knifer.freebox.websocket.handler.impl.GetOnePlayHistoryHandler;
 import io.knifer.freebox.websocket.handler.impl.GetPlayHistoryHandler;
 import io.knifer.freebox.websocket.handler.impl.GetPlayerContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetSearchContentHandler;
 import io.knifer.freebox.websocket.handler.impl.GetSourceBeanListHandler;
+import io.knifer.freebox.websocket.handler.impl.SaveMovieCollectionHandler;
 import io.knifer.freebox.websocket.handler.impl.SavePlayHistoryHandler;
 import io.knifer.freebox.websocket.service.WSService;
 
@@ -42,7 +46,11 @@ public class WSClient extends WebSocketClient {
                 new GetPlayHistoryHandler(service),
                 new GetSearchContentHandler(service),
                 new SavePlayHistoryHandler(service),
-                new DeletePlayHistoryHandler(service)
+                new DeletePlayHistoryHandler(service),
+                new GetMovieCollectionHandler(service),
+                new SaveMovieCollectionHandler(service),
+                new DeleteMovieCollectionHandler(service),
+                new GetOnePlayHistoryHandler(service)
         );
     }
 
