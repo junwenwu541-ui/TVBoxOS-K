@@ -9,21 +9,32 @@ import java.util.Objects;
  */
 public class RegisterInfo {
 
-    private String name;
+    private String clientId;
+
+    private String clientName;
 
     public RegisterInfo() {
     }
 
-    public RegisterInfo(String name) {
-        this.name = name;
+    public RegisterInfo(String clientId, String clientName) {
+        this.clientId = clientId;
+        this.clientName = clientName;
     }
 
-    public String getName() {
-        return name;
+    public String getClientId() {
+        return clientId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 
     @Override
@@ -31,22 +42,15 @@ public class RegisterInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RegisterInfo that = (RegisterInfo) o;
-        return Objects.equals(name, that.name);
+        return Objects.equals(clientId, that.clientId) && Objects.equals(clientName, that.clientName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(clientId, clientName);
     }
 
-    @Override
-    public String toString() {
-        return "RegisterInfo{" +
-                "name='" + name + '\'' +
-                '}';
-    }
-
-    public static RegisterInfo of(String name) {
-        return new RegisterInfo(name);
+    public static RegisterInfo of(String clientId, String clientName) {
+        return new RegisterInfo(clientId, clientName);
     }
 }

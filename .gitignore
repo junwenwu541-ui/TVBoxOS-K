@@ -97,3 +97,6 @@ lint/tmp/
 # IDEA
 .idea
 .idea/misc.xml
+
+# output-metadata.json
+app/debug/output-metadata.json

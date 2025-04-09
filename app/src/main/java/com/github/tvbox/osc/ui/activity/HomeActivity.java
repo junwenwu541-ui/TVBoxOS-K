@@ -402,7 +402,7 @@ public class HomeActivity extends BaseActivity {
         }, this);
 
         // FreeBox WebSocket初始化
-        if (WSHelper.init()) {
+        if (WSHelper.init(ANDROID_ID)) {
             mHandler.postDelayed(() -> {
                 if (WSHelper.isOpen()) {
                     Toast.makeText(mContext, "FreeBox配对成功", Toast.LENGTH_SHORT).show();

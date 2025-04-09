@@ -1,12 +1,16 @@
 package io.knifer.freebox.websocket;
 
+import com.github.tvbox.osc.util.LOG;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.reflect.TypeToken;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -32,12 +36,15 @@ import io.knifer.freebox.websocket.service.WSService;
 
 public class WSClient extends WebSocketClient {
 
-    private final WSService service = new WSService(this.getConnection());
+    private final WSService service;
 
     private final List<WebSocketMessageHandler<?>> handlers;
 
-    public WSClient(URI serverURI) {
+    private final AtomicBoolean reconnectFlag;
+
+    public WSClient(URI serverURI, String clientId) {
         super(serverURI);
+        service = new WSService(this.getConnection(), clientId);
         handlers = ImmutableList.of(
                 new GetSourceBeanListHandler(service),
                 new GetHomeContentHandler(service),
@@ -54,16 +61,32 @@ public class WSClient extends WebSocketClient {
                 new GetOnePlayHistoryHandler(service),
                 new GetMovieCollectedStatusHandler(service)
         );
+        reconnectFlag = new AtomicBoolean(false);
     }
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         service.register();
+        reconnectFlag.set(true);
     }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        System.out.println("closed with exit code " + code + " additional info: " + reason);
+        WebSocket connection;
+        InetSocketAddress inetSocketAddress;
+
+        LOG.i("closed with exit code " + code + " additional info: " + reason);
+        if (!reconnectFlag.get()) {
+            return;
+        }
+        // 异常断线后自动重连
+        connection = this.getConnection();
+        inetSocketAddress = connection.getLocalSocketAddress();
+        WSHelper.connectBlocking(
+                inetSocketAddress.getAddress().getHostAddress(),
+                inetSocketAddress.getPort(),
+                connection.hasSSLSupport()
+        );
     }
 
     @Override
@@ -87,5 +110,17 @@ public class WSClient extends WebSocketClient {
     @Override
     public void onError(Exception ex) {
         System.err.println("an error occurred:" + ex);
+    }
+
+    @Override
+    public void close() {
+        reconnectFlag.set(false);
+        super.close();
+    }
+
+    @Override
+    public void closeBlocking() throws InterruptedException {
+        reconnectFlag.set(false);
+        super.closeBlocking();
     }
 }

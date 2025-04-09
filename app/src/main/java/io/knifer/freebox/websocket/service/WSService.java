@@ -67,14 +67,17 @@ public class WSService {
 
     private final WebSocket connection;
 
-    public WSService(WebSocket connection) {
+    private final String clientId;
+
+    public WSService(WebSocket connection, String clientId) {
         this.connection = connection;
+        this.clientId = clientId;
     }
 
     public void register() {
         send(Message.oneWay(
                 MessageCodes.REGISTER,
-                RegisterInfo.of("tvbox-default")
+                RegisterInfo.of(clientId, "tvbox-k-default")
         ));
     }
 

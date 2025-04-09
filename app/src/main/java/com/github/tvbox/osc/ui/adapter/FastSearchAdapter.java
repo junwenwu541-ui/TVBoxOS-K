@@ -1,6 +1,8 @@
 package com.github.tvbox.osc.ui.adapter;
 
+import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.widget.ImageView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -35,16 +37,27 @@ public class FastSearchAdapter extends BaseQuickAdapter<Movie.Video, BaseViewHol
         }
         ImageView ivThumb = helper.getView(R.id.ivThumb);
         if (!TextUtils.isEmpty(item.pic)) {
-            Picasso.get()
-                    .load(item.pic)
-                    .transform(new RoundTransformation(MD5.string2MD5(item.pic))
-                            .centerCorp(true)
-                            .override(AutoSizeUtils.mm2px(mContext, 300), AutoSizeUtils.mm2px(mContext, 400))
-                            .roundRadius(AutoSizeUtils.mm2px(mContext, 10), RoundTransformation.RoundType.ALL))
-                    .placeholder(R.drawable.img_loading_placeholder)
-                    .noFade()
-                    .error(R.drawable.img_loading_placeholder)
-                    .into(ivThumb);
+            if (item.pic.startsWith("data:image")) {
+                byte[] imgBytes = Base64.decode(
+                        item.pic.split(",")[1].getBytes(),
+                        Base64.DEFAULT
+                );
+
+                ivThumb.setImageBitmap(BitmapFactory.decodeByteArray(
+                        imgBytes, 0, imgBytes.length
+                ));
+            } else {
+                Picasso.get()
+                        .load(item.pic)
+                        .transform(new RoundTransformation(MD5.string2MD5(item.pic))
+                                .centerCorp(true)
+                                .override(AutoSizeUtils.mm2px(mContext, 300), AutoSizeUtils.mm2px(mContext, 400))
+                                .roundRadius(AutoSizeUtils.mm2px(mContext, 10), RoundTransformation.RoundType.ALL))
+                        .placeholder(R.drawable.img_loading_placeholder)
+                        .noFade()
+                        .error(R.drawable.img_loading_placeholder)
+                        .into(ivThumb);
+            }
         } else {
             ivThumb.setImageResource(R.drawable.img_loading_placeholder);
         }

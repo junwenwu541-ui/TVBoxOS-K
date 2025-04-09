@@ -17,7 +17,9 @@ public final class WSHelper {
 
     private static volatile boolean initFlag = false;
 
-    public static boolean init() {
+    private static volatile String clientId;
+
+    public static boolean init(String clientId) {
         if (initFlag) {
             return false;
         }
@@ -25,6 +27,7 @@ public final class WSHelper {
         String address = Hawk.get(HawkConfig.FREE_BOX_SERVICE_ADDRESS);
         Integer port = Hawk.get(HawkConfig.FREE_BOX_SERVICE_PORT);
 
+        WSHelper.clientId = clientId;
         initFlag = true;
         if (address != null && port != null) {
             // 目前只支持ws协议
@@ -38,7 +41,8 @@ public final class WSHelper {
     private static void createClient(String address, int port, boolean safeFlag) {
         try {
             client = new WSClient(
-                    new URI(safeFlag ? "wss" : "ws" + "://" + address + ":" + port)
+                    new URI(safeFlag ? "wss" : "ws" + "://" + address + ":" + port),
+                    clientId
             );
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);

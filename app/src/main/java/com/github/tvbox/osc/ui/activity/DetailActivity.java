@@ -3,11 +3,13 @@ package com.github.tvbox.osc.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -628,16 +630,27 @@ public class DetailActivity extends BaseActivity {
                     setTextShow(tvDirector, "导演：", mVideo.director);
                     setTextShow(tvDes, "内容简介：", removeHtmlTag(mVideo.des));
                     if (!TextUtils.isEmpty(mVideo.pic)) {
-                        Picasso.get()
-                                .load(DefaultConfig.checkReplaceProxy(mVideo.pic))
-                                .transform(new RoundTransformation(MD5.string2MD5(mVideo.pic + mVideo.name))
-                                        .centerCorp(true)
-                                        .override(AutoSizeUtils.mm2px(mContext, 300), AutoSizeUtils.mm2px(mContext, 400))
-                                        .roundRadius(AutoSizeUtils.mm2px(mContext, 10), RoundTransformation.RoundType.ALL))
-                                .placeholder(R.drawable.img_loading_placeholder)
-                                .noFade()
-                                .error(R.drawable.img_loading_placeholder)
-                                .into(ivThumb);
+                        if (mVideo.pic.startsWith("data:image")) {
+                            byte[] imgBytes = Base64.decode(
+                                    mVideo.pic.split(",")[1].getBytes(),
+                                    Base64.DEFAULT
+                            );
+
+                            ivThumb.setImageBitmap(BitmapFactory.decodeByteArray(
+                                    imgBytes, 0, imgBytes.length
+                            ));
+                        } else {
+                            Picasso.get()
+                                    .load(DefaultConfig.checkReplaceProxy(mVideo.pic))
+                                    .transform(new RoundTransformation(MD5.string2MD5(mVideo.pic + mVideo.name))
+                                            .centerCorp(true)
+                                            .override(AutoSizeUtils.mm2px(mContext, 300), AutoSizeUtils.mm2px(mContext, 400))
+                                            .roundRadius(AutoSizeUtils.mm2px(mContext, 10), RoundTransformation.RoundType.ALL))
+                                    .placeholder(R.drawable.img_loading_placeholder)
+                                    .noFade()
+                                    .error(R.drawable.img_loading_placeholder)
+                                    .into(ivThumb);
+                        }
                     } else {
                         ivThumb.setImageResource(R.drawable.img_loading_placeholder);
                     }
