@@ -8,7 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 
 public class VlcPlayer {
     public static final String TAG = "ThirdParty.VLC";

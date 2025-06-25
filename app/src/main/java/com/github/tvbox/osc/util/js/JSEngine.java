@@ -7,7 +7,7 @@ import android.os.HandlerThread;
 import android.util.Base64;
 import android.util.Log;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.quickjs.JSArray;
 import com.github.tvbox.quickjs.JSCallFunction;

@@ -2,7 +2,7 @@ package com.github.tvbox.osc.util;
 
 import android.graphics.Bitmap;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 import com.github.tvbox.osc.picasso.MyOkhttpDownLoader;
 import com.github.tvbox.osc.util.SSL.SSLSocketFactoryCompat;
 import com.lzy.okgo.OkGo;
@@ -15,8 +15,6 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 

@@ -4,9 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.util.FileUtils;
 import com.xunlei.downloadlib.XLDownloadManager;
@@ -19,7 +18,6 @@ import com.xunlei.downloadlib.parameter.XLTaskInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;

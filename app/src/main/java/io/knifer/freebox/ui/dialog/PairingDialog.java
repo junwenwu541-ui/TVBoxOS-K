@@ -9,9 +9,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.tvbox.osc.R;
+import io.knifer.tvboxk.osc.R;
 import com.github.tvbox.osc.callback.LoadingCallback;
-import com.github.tvbox.osc.ui.dialog.BaseDialog;
+import io.knifer.tvboxk.osc.ui.dialog.BaseDialog;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LocalIPAddress;
 import com.kingja.loadsir.callback.Callback;

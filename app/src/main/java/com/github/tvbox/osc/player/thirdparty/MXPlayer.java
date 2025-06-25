@@ -1,7 +1,6 @@
 package com.github.tvbox.osc.player.thirdparty;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -9,7 +8,7 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 
 import java.net.URLEncoder;
 import java.util.HashMap;

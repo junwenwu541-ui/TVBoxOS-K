@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.github.tvbox.osc.event.ServerEvent;
-import com.github.tvbox.osc.ui.activity.SearchActivity;
+import io.knifer.tvboxk.osc.ui.activity.SearchActivity;
 import com.github.tvbox.osc.util.AppManager;
 
 import org.greenrobot.eventbus.EventBus;

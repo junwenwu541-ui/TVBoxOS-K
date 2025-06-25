@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.github.tvbox.osc.bean.Subtitle;
 import com.github.tvbox.osc.bean.SubtitleData;
-import com.github.tvbox.osc.ui.dialog.SearchSubtitleDialog;
+import io.knifer.tvboxk.osc.ui.dialog.SearchSubtitleDialog;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
 

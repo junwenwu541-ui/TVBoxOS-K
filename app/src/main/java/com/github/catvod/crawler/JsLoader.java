@@ -1,6 +1,6 @@
 package com.github.catvod.crawler;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 import com.github.tvbox.osc.util.js.SpiderJS;
 
 import java.util.concurrent.ConcurrentHashMap;

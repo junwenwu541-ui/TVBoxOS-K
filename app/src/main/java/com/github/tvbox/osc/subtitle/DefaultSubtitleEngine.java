@@ -32,7 +32,7 @@ import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 import com.github.tvbox.osc.cache.CacheManager;
 import com.github.tvbox.osc.subtitle.model.Subtitle;
 import com.github.tvbox.osc.subtitle.model.Time;

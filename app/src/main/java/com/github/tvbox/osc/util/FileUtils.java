@@ -3,7 +3,7 @@ package com.github.tvbox.osc.util;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

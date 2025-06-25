@@ -3,7 +3,7 @@ package com.github.tvbox.osc.util.thunder;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.github.tvbox.osc.base.App;
+import io.knifer.tvboxk.osc.base.App;
 import com.github.tvbox.osc.util.LocalIPAddress;
 import com.p2p.P2PClass;
 

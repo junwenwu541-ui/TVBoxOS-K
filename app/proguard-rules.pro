@@ -194,7 +194,7 @@
 #CardView
 -keep class com.github.tvbox.osc.ui.tv.widget.card.**{*;}
 #ViewObj
--keep class com.github.tvbox.osc.ui.tv.widget.ViewObj{
+-keep class io.knifer.tvboxk.osc.ui.tv.widget.ViewObj{
     <methods>;
 }
 
