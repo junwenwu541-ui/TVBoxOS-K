@@ -1,6 +1,6 @@
 # TVBox-K
 
-与 [FreeBox](https://github.com/kknifer7/FreeBox) 搭配使用的安卓端TVBox
+与 [FreeBox](https://github.com/kknifer7/FreeBox) 搭配使用的安卓端TVBox，详情请去 [FreeBox](https://github.com/kknifer7/FreeBox) 项目中查看
 
 基于项目：
 
